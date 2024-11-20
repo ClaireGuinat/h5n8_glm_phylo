@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast beautitemplate='Standard' beautistatus='' namespace="beast.core
+    :beast.evolution.alignment
+    :beast.evolution.tree.coalescent
+    :beast.core.util
+    :beast.evolution.nuc
+    :beast.evolution.operators
+    :beast.evolution.sitemodel
+    :beast.evolution.substitutionmodel
+    :beast.base.evolution.alignment
+    :beast.pkgmgmt
+    :beast.base.core:beast.base.inference
+    :beast.base.evolution.tree.coalescent
+    :beast.pkgmgmt
+    :beast.base.core
+    :beast.base.inference.util
+    :beast.evolution.nuc
+    :beast.base.evolution.operator.kernel
+    :beast.base.inference.operator.kernel
+    :beast.base.evolution.operator
+    :beast.base.inference.operator
+    :beast.base.evolution.sitemodel
+    :beast.base.evolution.substitutionmodel
+    :beast.base.evolution.likelihood
+    :beast.base.inference.parameter
+    :glmprior.util
+    :feast.fileio" version="2.7">
+
+
+<!-- Alignment -->
+    <data
+id="432_H5N8_sud_ouest_HA_dup_final"
+spec="feast.fileio.AlignmentFromFasta"
+fileName = "432_H5N8_sud_ouest_HA_dup_final.fas"
+name="alignment"/>
+
+
+ <!-- Map elements -->
+    <map name="Uniform" >beast.base.inference.distribution.Uniform</map>
+    <map name="Exponential" >beast.base.inference.distribution.Exponential</map>
+    <map name="LogNormal" >beast.base.inference.distribution.LogNormalDistributionModel</map>
+    <map name="Normal" >beast.base.inference.distribution.Normal</map>
+    <map name="Beta" >beast.base.inference.distribution.Beta</map>
+    <map name="Gamma" >beast.base.inference.distribution.Gamma</map>
+    <map name="LaplaceDistribution" >beast.base.inference.distribution.LaplaceDistribution</map>
+    <map name="prior" >beast.base.inference.distribution.Prior</map>
+    <map name="InverseGamma" >beast.base.inference.distribution.InverseGamma</map>
+    <map name="OneOnX" >beast.base.inference.distribution.OneOnX</map>
+
+
+ <!-- MCMC --> 
+    <run id="mcmc" spec="MCMC" chainLength="2000000000">
+
+        <!-- State -->
+        <state id="state" spec="State" storeEvery="20000">
+            <tree id="Tree.t:432_H5N8_sud_ouest_HA_dup_final" spec="beast.base.evolution.tree.Tree" name="stateNode">
+                <trait id="dateTrait.t:432_H5N8_sud_ouest_HA_dup_final" spec="feast.fileio.TraitSetFromTaxonSet" 
+                    dateFormat="yyyy-M-dd" 
+                    traitname="date" 
+                    delimiter= "_"
+                    takeGroup="1"> 
+                    <taxa id="TaxonSet.432_H5N8_sud_ouest_HA_dup_final" spec="TaxonSet">
+                        <alignment idref="432_H5N8_sud_ouest_HA_dup_final"/>
+                    </taxa>
+                </trait>
+                <taxonset idref="TaxonSet.432_H5N8_sud_ouest_HA_dup_final"/>
+            </tree>
+            <parameter id="gammaShape.s:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" lower="0.1" name="stateNode">1.0</parameter>
+            <parameter id="kappa.s:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
+            <parameter id="freqParameter.s:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>
+            <!-- <parameter id="ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" name="stateNode">0.001</parameter> -->
+            <parameter id="ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" lower="0.0" name="stateNode">0.2</parameter>
+            <parameter id="ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="760" lower="1.0E-100" name="stateNode">0.5</parameter>
+            <parameter id="originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" name="stateNode">1</parameter>
+            <!--<parameter id="R0Epi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="16" lower="0.0" name="stateNode">3</parameter> -->
+            <stateNode idref="coefficientsGLM"/>
+            <stateNode idref="scaleFactorGLM"/>
+            <stateNode idref="indicatorGLM"/>
+            <!--<stateNode idref="errorTermGLM"/>-->
+            <parameter id="becomeUninfectiousRateEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="1" lower="0.0" name="stateNode">0.1</parameter>
+        </state>
+
+        <!-- Tree initialiser -->
+        <init id="RandomTree.t:432_H5N8_sud_ouest_HA_dup_final" spec="RandomTree" estimate="false" initial="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" taxa="@432_H5N8_sud_ouest_HA_dup_final">
+            <populationModel id="ConstantPopulation0.t:432_H5N8_sud_ouest_HA_dup_final" spec="ConstantPopulation">
+                <parameter id="randomPopSize.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" name="popSize">0.001</parameter>
+            </populationModel>
+        </init>
+
+        <!-- Posterior Distribution -->
+        <distribution id="posterior" spec="CompoundDistribution">
+            <distribution id="prior" spec="CompoundDistribution">
+
+                <distribution id="BDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.distribution.BirthDeathMigrationDistribution" useAnalyticalSingleTypeSolution="true" conditionOnSurvival="false" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final"> <!--frequencies="@typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final"-->
+                    
+                    <!-- Parameterization BDMM-Prime -->
+                    <parameterization id="EpiBDMMPrimeParameterization.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.EpiParameterization" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                        
+                        <R0 id="R0SVEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineVectorParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true"> <!--skylineValues="@R0Epi.t:432_H5N8_sud_ouest_HA_dup_final"--> 
+
+                             <skylineValues id="R0RateValues" spec="GLMLogLinear" transform="true">
+                                <predictor id="p_ducksites" spec="RealParameterFromXSV" startRow="1" rowCount="1" startCol="1" sep="," fileName="mod_10k_6d_all_var_glm_v10.csv"/>
+                                <predictor id="p_chicksites" spec="RealParameterFromXSV" startRow="2" rowCount="1" startCol="1" sep="," fileName="mod_10k_6d_all_var_glm_v10.csv"/>
+                                <predictor id="p_mpairdist" spec="RealParameterFromXSV" startRow="3" rowCount="1" startCol="1" sep="," fileName="mod_10k_6d_all_var_glm_v10.csv"/>
+                                <predictor id="p_water" spec="RealParameterFromXSV" startRow="4" rowCount="1" startCol="1" sep="," fileName="mod_10k_6d_all_var_glm_v10.csv"/>
+                                <predictor id="p_rain" spec="RealParameterFromXSV" startRow="5" rowCount="1" startCol="1" sep="," fileName="mod_10k_6d_all_var_glm_v10.csv"/>
+                                
+                                 <parameter id="coefficientsGLM" spec="RealParameter" name="coefficients" dimension="5" value="0.1"/>
+                                 <parameter id="scaleFactorGLM" spec="RealParameter" name="scaleFactor" value="0.1"/>
+                                 <parameter id="indicatorGLM" spec="BooleanParameter" name="indicators" dimension="5" value="1"/>
+                                 <!--<parameter id="errorTermGLM" spec="RealParameter" name="error" value="0.01" dimension="16"/>-->
+                            </skylineValues>
+
+                            <parameter id="R0ChangeTimesEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="feast.parameter.TimeParameter" estimate="false" name="changeTimes" time="2021-02-27 2021-02-20 2021-02-06 2021-01-30 2021-01-23 2021-01-16 2021-01-09 2021-01-02 2020-12-26 2020-12-19 2020-12-12" mostRecentSampleTime="2021-03-20" timeFormat="yyyy-M-dd"/>
+                            <typeSet id="typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.TypeSet">
+                                <typeTraitSet id="typeTraitSet.t:432_H5N8_sud_ouest_HA_dup_final" spec="feast.fileio.TraitSetFromTaxonSet" traitname="type" delimiter="-" takeGroup="0">    
+                                    <taxa id="TaxonSet.1" spec="TaxonSet" alignment="@432_H5N8_sud_ouest_HA_dup_final"/>
+                                </typeTraitSet>
+                            </typeSet>
+                        </R0>
+                        
+                        <becomeUninfectiousRate id="becomeUninfectiousRateSVEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineVectorParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" skylineValues="@becomeUninfectiousRateEpi.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final"/>
+                        
+                        <samplingProportion id="samplingProportionSVEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineVectorParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                            <parameter id="samplingProportionChangeTimesEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="feast.parameter.TimeParameter" estimate="false" name="changeTimes" time="2020-11-28" mostRecentSampleTime="2021-03-20" timeFormat="yyyy-M-dd"/>
+                            <parameter id="samplingProportionEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="2" estimate="false" lower="0.0" name="skylineValues" upper="1.0">0.8211 0.0</parameter>
+                        </samplingProportion>
+                        
+                        <rhoSampling id="rhoSamplingProbTPEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.TimedParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final"/>
+                        
+                        <removalProb id="removalProbSVEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineVectorParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                            <parameter id="removalProbEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" estimate="false" lower="0.0" name="skylineValues" upper="1.0">1.0</parameter>
+                        </removalProb>
+                        
+                        <!--<migrationRate id="migrationRateSMEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineMatrixParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                            <parameter id="migrationRateEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" estimate="false" lower="0.0" name="skylineValues">1.0</parameter>
+                        </migrationRate>-->
+                        
+                        <!--<R0AmongDemes id="R0AmongDemesSMEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.parameterization.SkylineMatrixParameter" processLength="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" timesAreAges="true" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                            <parameter id="R0AmongDemesEpi.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" estimate="false" lower="0.0" name="skylineValues">1.0</parameter>
+                        </R0AmongDemes>-->
+                        
+                        <typeSet idref="typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final"/>
+                    </parameterization>
+                    
+                    <!--<parameter id="typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" dimension="1" estimate="false" lower="0.0" name="frequencies" upper="1.0">1.0</parameter>-->
+            
+                    <typeTraitSet idref="typeTraitSet.t:432_H5N8_sud_ouest_HA_dup_final"/>
+                </distribution>
+                
+                <!-- Priors on parameters -->
+                <prior id="ORCRatePriorDistribution.c:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final">
+                    <LogNormal id="LogNormalDistributionModel.1" S="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" meanInRealSpace="true" name="distr">
+                        <parameter id="RealParameter.5" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+                    </LogNormal>
+                </prior>
+
+                <prior id="ORCsigmaPrior.c:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final">
+                    <Gamma id="Gamma.0" name="distr">
+                        <parameter id="RealParameter.6" spec="parameter.RealParameter" estimate="false" name="alpha">5.0</parameter>
+                        <parameter id="RealParameter.7" spec="parameter.RealParameter" estimate="false" name="beta">0.05</parameter>
+                    </Gamma>
+                </prior>
+
+                <!--<prior id="ORCucldMeanPrior.c:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final">
+                    <LogNormal id="LogNormalDistributionModel.2" meanInRealSpace="true" name="distr">
+                        <parameter id="RealParameter.11" spec="parameter.RealParameter" estimate="false" name="M">0.005</parameter>
+                        <parameter id="RealParameter.12" spec="parameter.RealParameter" estimate="false" lower="0.0" name="S" upper="5.0">1.0</parameter>
+                    </LogNormal>
+                </prior>-->
+
+                <!--<distribution id="R0EpiPrior.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.util.priors.OUSkyGridPrior" x="@R0Epi.t:432_H5N8_sud_ouest_HA_dup_final"> 
+                        <parameter id="RealParameter.13" spec="parameter.RealParameter" estimate="false" name="M">0.0</parameter>
+                        <parameter id="RealParameter.14" spec="parameter.RealParameter" estimate="false" lower="0.0" name="S" upper="5.0">1.0</parameter>
+                        <parameter id="theta.1" spec="parameter.RealParameter" estimate="false" lower="0.0" name="theta" upper="5.0">1.0</parameter>
+                </distribution>-->
+
+                <!-- R0 rate GLM Prior -->
+                <prior id="coefficientsPrior" name="distribution" x="@coefficientsGLM">
+                    <Normal name="distr">
+                        <parameter spec="RealParameter" estimate="false" name="mean">0.0</parameter>
+                        <parameter spec="RealParameter" estimate="false" name="sigma">2.0</parameter>
+                    </Normal>
+                </prior>
+                <prior id="scaleFactorPrior" name="distribution" x="@scaleFactorGLM">
+                    <LogNormal name="distr">
+                        <parameter spec="RealParameter" estimate="false" name="M">0.0</parameter>
+                        <parameter spec="RealParameter" estimate="false" name="S">0.8</parameter>
+                    </LogNormal>
+                </prior>
+                <!--<prior id="errorTermPrior" name="distribution" x="@errorTermGLM">
+                    <Exponential name="distr" mean="0.001"/>
+                </prior>-->
+
+                <distribution id="becomeUninfectiousRateEpiPrior.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.util.priors.ZeroExcludingPrior" x="@becomeUninfectiousRateEpi.t:432_H5N8_sud_ouest_HA_dup_final">
+                    <LogNormal id="LogNormalDistributionModel.4" meanInRealSpace="true" name="distr">
+                        <parameter id="RealParameter.15" spec="parameter.RealParameter" estimate="false" name="M">52.0</parameter>
+                        <parameter id="RealParameter.16" spec="parameter.RealParameter" estimate="false" lower="0.0" name="S" upper="5.0">0.6</parameter>
+                    </LogNormal>
+                </distribution>
+
+                <prior id="FrequenciesPrior.s:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@freqParameter.s:432_H5N8_sud_ouest_HA_dup_final">
+                    <distr id="Dirichlet.0" spec="distribution.Dirichlet">
+                        <parameter id="RealParameter.3" spec="parameter.RealParameter" dimension="4" estimate="false" name="alpha">4.0 4.0 4.0 4.0</parameter>
+                    </distr>
+                </prior>
+
+                <prior id="GammaShapePrior.s:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@gammaShape.s:432_H5N8_sud_ouest_HA_dup_final">
+                    <Exponential id="Exponential.0" name="distr">
+                        <parameter id="RealParameter.0" spec="parameter.RealParameter" estimate="false" name="mean">1.0</parameter>
+                    </Exponential>
+                </prior>
+
+                <prior id="KappaPrior.s:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@kappa.s:432_H5N8_sud_ouest_HA_dup_final">
+                    <LogNormal id="LogNormalDistributionModel.0" name="distr">
+                        <parameter id="RealParameter.1" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+                        <parameter id="RealParameter.2" spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+                    </LogNormal>
+                </prior>
+
+                <prior id="originBDMMPrimePrior.t:432_H5N8_sud_ouest_HA_dup_final" name="distribution" x="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                    <LogNormal id="LogNormalDistributionModel.5" name="distr">
+                        <parameter id="RealParameter.17" spec="parameter.RealParameter" estimate="false" name="M">-1.4</parameter>
+                        <parameter id="RealParameter.18" spec="parameter.RealParameter" estimate="false" lower="0.0" name="S" upper="5.0">0.05</parameter>
+                    </LogNormal>
+                </prior>
+            </distribution>
+
+            <!-- Likelihood -->
+            <distribution id="likelihood" spec="CompoundDistribution" useThreads="true">
+                <distribution id="treeLikelihood.432_H5N8_sud_ouest_HA_dup_final" spec="ThreadedTreeLikelihood" data="@432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final">
+                    <siteModel id="SiteModel.s:432_H5N8_sud_ouest_HA_dup_final" spec="SiteModel" gammaCategoryCount="4" shape="@gammaShape.s:432_H5N8_sud_ouest_HA_dup_final">
+                        <parameter id="mutationRate.s:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" estimate="false" lower="0.0" name="mutationRate">1.0</parameter>
+                        <parameter id="proportionInvariant.s:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                        <substModel id="hky.s:432_H5N8_sud_ouest_HA_dup_final" spec="HKY" kappa="@kappa.s:432_H5N8_sud_ouest_HA_dup_final">
+                            <frequencies id="estimatedFreqs.s:432_H5N8_sud_ouest_HA_dup_final" spec="Frequencies" frequencies="@freqParameter.s:432_H5N8_sud_ouest_HA_dup_final"/>
+                        </substModel>
+                    </siteModel>
+                    <branchRateModel id="OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" spec="beast.base.evolution.branchratemodel.UCRelaxedClockModel" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" >
+                        <parameter id="ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final" spec="parameter.RealParameter" name="clock.rate">0.001</parameter>
+                        <LogNormal id="ORCLogNormalDistributionModel.c:432_H5N8_sud_ouest_HA_dup_final" S="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" meanInRealSpace="true" name="distr">
+                            <parameter id="RealParameter.4" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+                        </LogNormal>
+                    </branchRateModel>
+                </distribution>
+            </distribution>
+        </distribution>
+
+        <!-- Operators -->
+        <operator id="gammaShapeScaler.s:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="0.05">
+            <parameter idref="gammaShape.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="AVMNOperator.432_H5N8_sud_ouest_HA_dup_final" spec="kernel.AdaptableVarianceMultivariateNormalOperator" allowNonsense="true" beta="0.05" burnin="400" initial="800" weight="0.1">
+                <transformations id="AVMNSumTransform.432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.Transform$LogConstrainedSumTransform">
+                    <f idref="freqParameter.s:432_H5N8_sud_ouest_HA_dup_final"/>
+                </transformations>
+                <transformations id="AVMNLogTransform.432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.Transform$LogTransform">
+                    <f idref="gammaShape.s:432_H5N8_sud_ouest_HA_dup_final"/>
+                    <f idref="kappa.s:432_H5N8_sud_ouest_HA_dup_final"/>
+                </transformations>
+                <transformations id="AVMNNoTransform.432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.Transform$NoTransform">
+                    <f idref="Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+                </transformations>
+            </operator>
+            <operator id="gammaShapeScalerX.s:432_H5N8_sud_ouest_HA_dup_final" spec="kernel.BactrianScaleOperator" parameter="@gammaShape.s:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.5" upper="10.0" weight="0.1"/>
+        </operator>
+        <operator id="KappaScaler.s:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="0.05">
+            <parameter idref="kappa.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator idref="AVMNOperator.432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="KappaScalerX.s:432_H5N8_sud_ouest_HA_dup_final" spec="kernel.BactrianScaleOperator" parameter="@kappa.s:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.1" upper="10.0" weight="0.1"/>
+        </operator>
+        <operator id="FrequenciesExchanger.s:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="0.05">
+            <parameter idref="freqParameter.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator idref="AVMNOperator.432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="FrequenciesExchangerX.s:432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.BactrianDeltaExchangeOperator" delta="0.01" weight="0.1">
+                <parameter idref="freqParameter.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            </operator>
+        </operator>
+        <!--<operator id="ORCucldMeanScaler.c:432_H5N8_sud_ouest_HA_dup_final" spec="ScaleOperator" parameter="@ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.5" weight="3.0"/>
+        <operator id="ORC.UpDown.c:432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.BactrianUpDownOperator" scaleFactor="0.75" weight="3.0">
+            <up idref="ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <down idref="Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </operator> -->
+        <operator id="ORCAdaptableOperatorSampler_sigma.c:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="3.0">
+            <parameter idref="ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="ORCucldStdevScaler.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.consoperators.UcldScalerOperator" distr="@ORCLogNormalDistributionModel.c:432_H5N8_sud_ouest_HA_dup_final" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.5" stdev="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" weight="1.0">
+                <kernel id="KernelDistribution$Bactrian.17" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCUcldStdevRandomWalk.c:432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.BactrianRandomWalkOperator" parameter="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.1" weight="1.0">
+                <kernelDistribution id="KernelDistribution$Bactrian.18" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCUcldStdevScale.c:432_H5N8_sud_ouest_HA_dup_final" spec="kernel.BactrianScaleOperator" parameter="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.5" upper="10.0" weight="1.0">
+                <kernelDistribution id="KernelDistribution$Bactrian.19" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCSampleFromPriorOperator_sigma.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.operators.SampleFromPriorOperator" parameter="@ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final" prior2="@ORCsigmaPrior.c:432_H5N8_sud_ouest_HA_dup_final" weight="1.0"/>
+        </operator>
+        <operator id="ORCAdaptableOperatorSampler_rates_root.c:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="1.0">
+            <parameter idref="ORCRates.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <tree idref="Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="ORCRootOperator1.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.consoperators.SimpleDistance" clockModel="@OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" twindowSize="0.005" weight="1.0">
+                <kernel id="KernelDistribution$Bactrian.20" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCRootOperator2.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.consoperators.SmallPulley" clockModel="@OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" dwindowSize="0.005" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="1.0">
+                <kernel id="KernelDistribution$Bactrian.21" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+        </operator>
+        <operator id="ORCAdaptableOperatorSampler_rates_internal.c:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="20.0">
+            <parameter idref="ORCRates.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <tree idref="Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="ORCInternalnodesOperator.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.consoperators.InConstantDistanceOperator" clockModel="@OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" twindowSize="0.005" weight="1.0">
+                <kernel id="KernelDistribution$Bactrian.22" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCRatesRandomWalk.c:432_H5N8_sud_ouest_HA_dup_final" spec="operator.kernel.BactrianRandomWalkOperator" parameter="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.1" weight="1.0">
+                <kernelDistribution id="KernelDistribution$Bactrian.23" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCRatesScale.c:432_H5N8_sud_ouest_HA_dup_final" spec="kernel.BactrianScaleOperator" parameter="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" scaleFactor="0.5" upper="10.0" weight="1.0">
+                <kernelDistribution id="KernelDistribution$Bactrian.24" spec="operator.kernel.KernelDistribution$Bactrian"/>
+            </operator>
+            <operator id="ORCSampleFromPriorOperator.rates.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.operators.SampleFromPriorOperator" parameter="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" prior2="@ORCRatePriorDistribution.c:432_H5N8_sud_ouest_HA_dup_final" weight="1.0"/>
+        </operator>
+        <operator id="ORCAdaptableOperatorSampler_NER.c:432_H5N8_sud_ouest_HA_dup_final" spec="AdaptableOperatorSampler" weight="10.0">
+            <tree idref="Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <operator id="ORCNER_null.c:432_H5N8_sud_ouest_HA_dup_final" spec="Exchange" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="1.0"/>
+            <operator id="ORCNER_dAE_dBE_dCE.c:432_H5N8_sud_ouest_HA_dup_final" spec="orc.ner.NEROperator_dAE_dBE_dCE" rates="@ORCRates.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="1.0"/>
+            <metric id="RNNIMetric.0" spec="beastlabs.evolution.tree.RNNIMetric" taxonset="@TaxonSet.432_H5N8_sud_ouest_HA_dup_final"/>
+        </operator>
+        <!-- <operator id="BDMMPrimeLeafToSA.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.LeafToSampledAncestorJump" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="10.0"/>
+        <operator id="BDMMPrimeSAWilsonBalding.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAWilsonBalding" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="10.0"/>
+        <operator id="BDMMPrimeSAWide.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAExchange" isNarrow="false" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="10.0"/>
+        <operator id="BDMMPrimeSANarrow.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAExchange" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="10.0"/>
+        <operator id="BDMMPrimeSAUniformOperator.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAUniform" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="20.0"/>
+        <operator id="BDMMPrimeSATreeRootScaler.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAScaleOperator" rootOnly="true" scaleFactor="0.95" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="1.0"/>
+        <operator id="BDMMPrimeSATreeScaler.t:432_H5N8_sud_ouest_HA_dup_final" spec="sa.evolution.operators.SAScaleOperator" scaleFactor="0.95" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final" weight="3.0"/> -->
+        <operator id="originBDMMPrimeScaler.t:432_H5N8_sud_ouest_HA_dup_final" spec="ScaleOperator" parameter="@originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" weight="3.0"/>
+        <!--<operator id="typeFrequenciesExchanger.t:432_H5N8_sud_ouest_HA_dup_final" spec="operator.DeltaExchangeOperator" delta="0.1" weight="1.0">
+            <parameter idref="typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </operator>-->
+        <!--<operator id="R0EpiScaler.t:432_H5N8_sud_ouest_HA_dup_final" spec="ScaleOperator" parameter="@R0Epi.t:432_H5N8_sud_ouest_HA_dup_final" weight="3.0"/>-->
+        <operator id="scaleFactorGLMScaler" spec="BactrianScaleOperator" parameter="@scaleFactorGLM" 
+            weight="10.0" />
+        <operator id="coefficientsGLMScaler" spec="BactrianRandomWalkOperator" parameter="@coefficientsGLM" 
+            weight="30.0" scaleFactor="0.5"/>
+        <operator id="indicatorParamGLMFlip" spec="BitFlipOperator" parameter="@indicatorGLM" 
+            weight="30.0" uniform="false" />
+        <operator id="JointSwapGLM" spec="JointOperator" weight="5.0">
+            <operator id="indicatorSwap" spec="ExtendedSwapOperator" boolparameter="@indicatorGLM" 
+            weight="5.0" />
+            <operator id="coeffGLMSwap" spec="ExtendedSwapOperator" parameter="@coefficientsGLM" 
+            weight="5.0"/>
+        </operator>
+        <operator id="indicatorParamGLMjointSwap" spec="ExtendedSwapOperator" parameter="@coefficientsGLM" filter="@indicatorGLM" 
+            weight="10.0"/>
+        <!--<operator id="errorTermGLMScaler" spec="BactrianScaleOperator" parameter="@errorTermGLM" 
+            weight="5.0" upper="20.0"/>-->
+        <operator id="becomeUninfectiousRateEpiScaler.t:432_H5N8_sud_ouest_HA_dup_final" spec="ScaleOperator" parameter="@becomeUninfectiousRateEpi.t:432_H5N8_sud_ouest_HA_dup_final" weight="3.0"/>
+        <logger id="tracelog" spec="Logger" fileName="$(filebase).log" logEvery="200000" model="@posterior" sanitiseHeaders="true" sort="smart">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="treeLikelihood.432_H5N8_sud_ouest_HA_dup_final"/>
+            <log id="TreeHeight.t:432_H5N8_sud_ouest_HA_dup_final" spec="beast.base.evolution.tree.TreeStatLogger" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="gammaShape.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="kappa.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="freqParameter.s:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="ORCsigma.c:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log id="ORCRatesStat.c:432_H5N8_sud_ouest_HA_dup_final" spec="beast.base.evolution.RateStatistic" branchratemodel="@OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="originBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <!--<log idref="typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final"/>-->
+            <!--<log id="typedTreeStats.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.mapping.TypedTreeStatsLogger" includeRootEdge="true" typeLabel="type" typeSet="@typeSetBDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final">
+                <typedTree id="typeMappedTree.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.mapping.TypeMappedTree" bdmmDistrib="@BDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" frequencies="@typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final" mapOnInit="false" remapOnLog="true" typeLabel="type" typeTraitSet="@typeTraitSet.t:432_H5N8_sud_ouest_HA_dup_final" untypedTree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            </log>-->
+            <log idref="R0SVEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="coefficientsGLM"/>
+            <log idref="scaleFactorGLM"/>
+            <log idref="indicatorGLM"/>
+<!--             <log idref="p_ducksites"/>
+            <log idref="p_chicksites"/>
+            <log idref="p_duck3km"/>
+            <log idref="p_duck5km"/>
+            <log idref="p_duck10km"/>
+            <log idref="p_chick3km"/>
+            <log idref="p_chick5km"/>
+            <log idref="p_chick10km"/> -->
+            <!--<log idref="errorTermGLM"/>-->
+            <!--<log idref="R0AmongDemesSMEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>-->
+            <log idref="becomeUninfectiousRateSVEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <!--<log idref="migrationRateSMEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>-->
+            <log idref="samplingProportionSVEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="removalProbSVEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>
+            <log idref="rhoSamplingProbTPEpi.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </logger>
+        <logger id="screenlog" spec="Logger" logEvery="200000">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="ORCucldMean.c:432_H5N8_sud_ouest_HA_dup_final"/>
+        </logger>
+        <logger id="treelog.t:432_H5N8_sud_ouest_HA_dup_final" spec="Logger" fileName="$(filebase)-$(tree).trees" logEvery="200000" mode="tree">
+            <log id="TreeWithMetaDataLogger.t:432_H5N8_sud_ouest_HA_dup_final" spec="beast.base.evolution.TreeWithMetaDataLogger" branchratemodel="@OptimisedRelaxedClock.c:432_H5N8_sud_ouest_HA_dup_final" tree="@Tree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </logger>
+        <!--<logger id="typedTreeLogger.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.util.OptionalLogger" enableLogger="true" fileName="$(filebase).$(tree).typed.trees" logEvery="50000" mode="tree">
+            <log idref="typeMappedTree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </logger>
+        <logger id="nodeTypedTreeLogger.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.util.OptionalLogger" enableLogger="true" fileName="$(filebase).$(tree).typed.node.trees" logEvery="50000" mode="tree">
+            <log id="nodeTypedTree.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.mapping.TypedNodeTreeLogger" typedTree="@typeMappedTree.t:432_H5N8_sud_ouest_HA_dup_final"/>
+        </logger>
+        <logger id="trajLogger.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.util.OptionalLogger" fileName="$(filebase).$(tree).traj" logEvery="50000">
+            <log id="typedTraj.t:432_H5N8_sud_ouest_HA_dup_final" spec="bdmmprime.trajectories.SampledTrajectory" bdmmDistrib="@BDMMPrime.t:432_H5N8_sud_ouest_HA_dup_final" frequencies="@typeFrequencies.t:432_H5N8_sud_ouest_HA_dup_final" typeMappedTree="@typeMappedTree.t:432_H5N8_sud_ouest_HA_dup_final" useTauLeaping="true"/>
+        </logger>-->
+        <operatorschedule id="OperatorSchedule" spec="OperatorSchedule"/>
+    </run>
+
+</beast>
